@@ -101,7 +101,7 @@ int main() {
     ClienteSeguro cliente("Juan Perez", "Av. Ejercito 1010", 5000.00, "1234567890", "abc123");
 
     // Muestra los datos originales del cliente
-    cout << "DATOS ORIGINALES DEL CLIENTE:" << endl;
+    cout << "\tDATOS ORIGINALES DEL CLIENTE:" << endl;
     cliente.mostrarDatos();
 
     // Muestra datos encriptados
