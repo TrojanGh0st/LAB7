@@ -3,62 +3,65 @@
 
 using namespace std;
 
-// Clase base Cliente
+// Clase Base Cliente
 class Cliente {
 protected:
-    string nombre;
-    string direccion;
-    string numeroTarjeta;
+    string nombre;          // Nombre del cliente
+    string direccion;       // Dirección del cliente
+    float saldo;            // Saldo del cliente
+    string numeroTarjeta;   // Número de tarjeta del cliente
+    string contrasena;      // Contraseña del cliente
 
     // Método protegido para encriptar la información antes de ser almacenada
-    void encriptarInformacion() {
-        // Implementación de la encriptación (puedes personalizarla según necesites)
-        cout << "La informacion ha sido encriptada." << endl;
-        // Aquí podrías incluir la lógica para encriptar la información antes de almacenarla
+    string encriptar(const string& data) const {
+        string encriptado = data; // Realiza una copia de la cadena
+
+        // Algoritmo de encriptación simple: suma 1 al código ASCII de cada carácter
+        for (char& c : encriptado) {
+            if (c == '9') // Si el carácter es '9', cambia a '0'
+                c = '0';
+            else
+                c += 1; // Suma 1 al código ASCII
+        }
+
+        return encriptado;
     }
 
 public:
-    // Constructor
-    Cliente(string _nombre, string _direccion, string _numeroTarjeta) : nombre(_nombre), direccion(_direccion), numeroTarjeta(_numeroTarjeta) {}
+    // Constructor de clase
+    Cliente(const string& nom, const string& direc, float _saldo, const string& tarjeta, const string& pass)
+        : nombre(nom), direccion(direc), saldo(_saldo), numeroTarjeta(encriptar(tarjeta)), contrasena(encriptar(pass)) {}
 
-    // Método para mostrar la información del cliente
-    void mostrarInformacion() {
+    // Destructor de clase
+    virtual ~Cliente() {}
+
+    // Método para mostrar datos auténticos del cliente
+    void mostrarDatos() const {
         cout << "Nombre: " << nombre << endl;
         cout << "Direccion: " << direccion << endl;
+        cout << "Saldo: " << saldo << endl;
         cout << "Numero de tarjeta: " << numeroTarjeta << endl;
+        cout << "Contrasena: " << contrasena << endl;
     }
 };
 
-// Clase derivada ClienteSeguro
 class ClienteSeguro : public Cliente {
 public:
     // Constructor
-    ClienteSeguro(string _nombre, string _direccion, string _numeroTarjeta) : Cliente(_nombre, _direccion, _numeroTarjeta) {}
+    ClienteSeguro(const string& nom, const string& direc, float _saldo, const string& tarjeta, const string& pass)
+        : Cliente(nom, direc, _saldo, tarjeta, pass) {}
 
-    // Método para verificar la autenticidad del cliente
-    bool verificarAutenticidad() {
-        // Implementación de la verificación de autenticidad
-        // Por simplicidad, aquí solo se devuelve true
-        return true;
-    }
-
-    // Método para procesar el pago
-    void procesarPago() {
-        bool autenticado = verificarAutenticidad();
-        if (autenticado) {
-            encriptarInformacion(); // Encriptar la información antes de almacenarla
-            cout << "Cliente autenticado. Procesando pago..." << endl;
-            // Aquí iría el código para procesar el pago
-        } else {
-            cout << "Cliente no autenticado. El pago no puede ser procesado." << endl;
-        }
-    }
+    // Destructor
+    ~ClienteSeguro() {}
 };
 
 int main() {
-    ClienteSeguro cliente("Nyldersito FF", "Calle XD", "1234-5678-9012-3456");
-    cliente.mostrarInformacion();
-    cliente.procesarPago();
+    // Instancia de clase derivada
+    ClienteSeguro cliente("Juan Perez", "Av. Ejercito 1010", 5000.00, "1234567890", "abc123");
+
+    // Muestra los datos originales del cliente
+    cout << "DATOS ORIGINALES DEL CLIENTE:" << endl;
+    cliente.mostrarDatos();
 
     return 0;
 }
