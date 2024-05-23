@@ -3,63 +3,124 @@
 
 using namespace std;
 
-// Clase base Cliente
+// Clase Base Cliente
 class Cliente {
 protected:
-    string nombre;
-    string direccion;
-    string numeroTarjeta;
-    // Otros atributos necesarios para la información personal y financiera del cliente
+    string nombre;          // Nombre del cliente
+    string direccion;       // Dirección del cliente
+    float saldo;            // Saldo del cliente
+    string numeroTarjeta;   // Número de tarjeta del cliente
+    string contrasena;      // Contraseña del cliente
+
+    // Declaración de métodos virtuales
+    virtual string encriptarTarjeta() const = 0;
+    virtual string encriptarContrasena() const = 0;
 
 public:
-    // Constructor
-    Cliente(string _nombre, string _direccion, string _numeroTarjeta) : nombre(_nombre), direccion(_direccion), numeroTarjeta(_numeroTarjeta) {}
+    // Constructor de clase
+    Cliente(const string& nom, const string& direc, float _saldo, const string& tarjeta, const string& pass)
+        : nombre(nom), direccion(direc), saldo(_saldo), numeroTarjeta(tarjeta), contrasena(pass) {}
 
-    // Método para mostrar la información del cliente
-    void mostrarInformacion() {
+    // Destructor de clase
+    virtual ~Cliente() {}
+
+    // Método para mostrar datos auténticos del cliente
+    void mostrarDatos() const {
         cout << "Nombre: " << nombre << endl;
         cout << "Direccion: " << direccion << endl;
+        cout << "Saldo: " << saldo << endl;
         cout << "Numero de tarjeta: " << numeroTarjeta << endl;
-        // Mostrar otros atributos si es necesario
+        cout << "Contrasena: " << contrasena << endl;
     }
 };
 
-// Clase derivada ClienteSeguro
 class ClienteSeguro : public Cliente {
-private:
-    // Atributos adicionales si son necesarios para la seguridad
-
 public:
     // Constructor
-    ClienteSeguro(string _nombre, string _direccion, string _numeroTarjeta) : Cliente(_nombre, _direccion, _numeroTarjeta) {}
+    ClienteSeguro(const string& nom, const string& direc, float _saldo, const string& tarjeta, const string& pass)
+        : Cliente(nom, direc, _saldo, tarjeta, pass) {}
 
-    // Método para encriptar la información
-    void encriptarInformacion() {
-        // Implementación de la encriptación
-        cout << "La informacion ha sido encriptada." << endl;
+    // Destructor
+    ~ClienteSeguro() {}
+
+    // Encriptacion de numero de tarjeta con sobreescritura
+    string encriptarTarjeta() const override {
+        string temp = numeroTarjeta;
+        string encriptado = "";
+
+        for (int i = 0; i < temp.length(); i++) {
+            if (temp[i] == '9')
+                temp[i] = '0';
+            else
+                temp[i] += 1;
+            encriptado += temp[i];
+        }
+        return encriptado;
     }
 
-    // Método para verificar la autenticidad del cliente
-    bool verificarAutenticidad() {
-        // Implementación de la verificación de autenticidad
-        // Aquí podrías incluir algún tipo de autenticación, como una contraseña o un sistema de autenticación biométrica
-        // Por simplicidad, aquí solo se devuelve true
-        return true;
+    // Encriptación de contraseña con sobreescritura
+    string encriptarContrasena() const override {
+        string temp = contrasena;
+        string encriptado = "";
+
+        for (int i = 0; i < temp.length(); i++) {
+            switch (contrasena[i]) {
+                case '9':
+                    temp[i] = '0';
+                    break;
+                case 'z':
+                    temp[i] = 'a';
+                    break;
+                case 'Z':
+                    temp[i] = 'A';
+                    break;
+                default:
+                    temp[i] += 1;
+                    break;
+            }
+            encriptado += temp[i];
+        }
+        return encriptado;
+    }
+
+    // Método para mostrar datos encriptados
+    void mostrarEncriptacion() const {
+        cout << "DATOS ENCRIPTADOS DEL CLIENTE:" << endl;
+        cout << "Numero de tarjeta: " << encriptarTarjeta() << endl;
+        cout << "Contrasena: " << encriptarContrasena() << endl;
+    }
+
+    // Método para verificar autenticidad
+    bool autenticar(const string& tarjeta, const string& pass) const {
+        return numeroTarjeta == tarjeta && contrasena == pass;
     }
 };
 
 int main() {
-    // Ejemplo de uso
-    ClienteSeguro cliente("Nyldersito FF", "Calle XD", "1234-5678-9012-3456");
-    cliente.mostrarInformacion();
-    cliente.encriptarInformacion();
-    bool autenticado = cliente.verificarAutenticidad();
-    if (autenticado) {
-        cout << "Cliente autenticado. Procesando pago..." << endl;
-        // Aquí iría el código para procesar el pago
-    } else {
-        cout << "Cliente no autenticado. El pago no puede ser procesado." << endl;
-    }
+    // Instancia de clase derivada
+    ClienteSeguro cliente("Juan Perez", "Av. Ejercito 1010", 5000.00, "1234567890", "abc123");
+
+    // Muestra los datos originales del cliente
+    cout << "DATOS ORIGINALES DEL CLIENTE:" << endl;
+    cliente.mostrarDatos();
+
+    // Muestra datos encriptados
+    cliente.mostrarEncriptacion();
+
+    // Ingreso de datos por teclado
+    string tarjeta, pass;
+    cout << "Ingrese numero de tarjeta: ";
+    cin >> tarjeta;
+    cout << "Ingrese contrasena: ";
+    cin >> pass;
+
+    // Verifica la autenticidad
+    if (cliente.autenticar(tarjeta, pass)) {
+        cout << "Autenticacion exitosa" << endl;
+        // Muestra los datos reales del cliente
+        cliente.mostrarDatos();
+    } else
+        cout << "Autenticacion fallida" << endl;
 
     return 0;
 }
